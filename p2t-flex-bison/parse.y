@@ -2,29 +2,35 @@
 #include<stdio.h>
 extern "C" int yylex();
 extern int yyerror(...);
+int i = 0;
 %}
 
-%token NUM
+/*%define api.value.type union /* Generate YYSTYPE from these types:  */
+%define api.value.type union/* Generate YYSTYPE from these types:  */
+%token <int> NUMBER
+%token <int> TYPE
+%token LBRACE
+%token RBRACE
+%token SEMICOLON
+%token EQUAL
+%token MESSAGE
+%token ENUM
+%token <const char*> NAME
+%type <const char*> contents
+
 %left '+' '-'
 %left '*' '/'
-
-%start line 
+%start file
 
 %%
 
-line:   
-       /* empty */ 
-     |line exp '\n' {printf("%d\n",$2);}
-     | error '\n';
+file:
+|	file MESSAGE NAME LBRACE contents RBRACE { printf("Found message(%d): %s %s\n", i++, $3, $5); }
+;
 
-exp:      exp '+' exp {$$ = $1 + $3;}
-        | exp '*' exp {$$ = $1 * $3;}
-        | exp '-' exp {$$ = $1 - $3;}
-        | exp '/' exp { if ($3 == 0)
-                                $$ = 0;
-                        else
-                                $$ = $1/$3;}
-        | NUM          {$$ = $1;};
+contents: { $$ = "empty"; }
+|	contents TYPE NAME SEMICOLON { $$ = $3; printf("Fount item: %d %s\n", $2, $3); }
+;
 %%
 
 int yyerror(...)

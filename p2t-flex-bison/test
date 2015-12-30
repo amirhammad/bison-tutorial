@@ -1,0 +1,5 @@
+message aho1
+{
+	uint8 a;
+	uint8 b;
+}
